@@ -42,7 +42,7 @@ const Chatbot = () => {
             if (!token) return;
 
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            const { data } = await axios.get('http://localhost:5000/api/chatbot/notifications', config);
+            const { data } = await axios.get('/api/chatbot/notifications', config);
 
             if (data && data.length > 0) {
                 // Add notifications as bot messages
@@ -88,7 +88,7 @@ const Chatbot = () => {
         setIsTyping(true);
 
         try {
-            const { data } = await axios.post('http://localhost:5000/api/chatbot/chat', {
+            const { data } = await axios.post('/api/chatbot/chat', {
                 message: messageText
             });
 

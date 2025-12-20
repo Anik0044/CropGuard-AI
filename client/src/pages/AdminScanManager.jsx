@@ -28,7 +28,7 @@ const AdminScanManager = () => {
         try {
             const token = JSON.parse(localStorage.getItem('userInfo'))?.token;
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            const { data } = await axios.get('http://localhost:5000/api/detect/admin/all', config);
+            const { data } = await axios.get('/api/detect/admin/all', config);
             // Sort to put pending_review at the top
             const sortedScans = data.sort((a, b) => {
                 if (a.status === 'pending_review' && b.status !== 'pending_review') return -1;
@@ -87,7 +87,7 @@ const AdminScanManager = () => {
             // Process custom inputs into arrays
             const processLines = (text) => text ? text.split('\n').filter(line => line.trim() !== '') : [];
 
-            await axios.put(`http://localhost:5000/api/detect/admin/${id}`, {
+            await axios.put(`/api/detect/admin/${id}`, {
                 detectedDisease: editForm.detectedDisease,
                 adminComment: editForm.adminComment,
                 customDetails: {
@@ -135,7 +135,7 @@ const AdminScanManager = () => {
                             <div className="w-full md:w-64 h-64 md:h-auto bg-stone-100 relative group flex-none">
                                 {scan.inputImageUrl ? (
                                     <img
-                                        src={`http://localhost:5000${scan.inputImageUrl}`}
+                                        src={`${scan.inputImageUrl}`}
                                         alt={scan.cropType}
                                         className="w-full h-full object-cover"
                                     />

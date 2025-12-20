@@ -17,7 +17,7 @@ const AdminDashboard = () => {
             try {
                 const token = JSON.parse(localStorage.getItem('userInfo'))?.token;
                 const config = { headers: { Authorization: `Bearer ${token}` } };
-                const { data } = await axios.get('http://localhost:5000/api/detect/admin/all', config);
+                const { data } = await axios.get('/api/detect/admin/all', config);
                 // Filter locally for pending reviews, or backend could do it
                 setPendingScans(data.filter(s => s.status === 'pending_review'));
                 setLoading(false);
@@ -37,7 +37,7 @@ const AdminDashboard = () => {
             const token = JSON.parse(localStorage.getItem('userInfo'))?.token;
             const config = { headers: { Authorization: `Bearer ${token}` } };
 
-            await axios.put(`http://localhost:5000/api/detect/admin/${id}`, {
+            await axios.put(`/api/detect/admin/${id}`, {
                 detectedDisease,
                 adminComment
             }, config);
@@ -113,7 +113,7 @@ const AdminDashboard = () => {
                         {pendingScans.map(scan => (
                             <div key={scan._id} className="bg-white p-6 rounded-xl border border-stone-200 shadow-sm flex flex-col md:flex-row gap-6">
                                 <img
-                                    src={`http://localhost:5000${scan.inputImageUrl}`}
+                                    src={`${scan.inputImageUrl}`}
                                     alt="Scan"
                                     className="w-32 h-32 object-cover rounded-lg border border-stone-100"
                                 />

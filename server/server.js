@@ -55,11 +55,20 @@ const startServer = async () => {
     app.use('/api/signatures', signatureRoutes);
     app.use('/api/research', researchRoutes);
 
+    // Serve static assets in production
+    if (process.env.NODE_ENV === 'production') {
+        app.use(express.static(path.join(__dirname, '../client/dist')));
+
+        app.get('*', (req, res) => {
+            res.sendFile(path.resolve(__dirname, '../client', 'dist', 'index.html'));
+        });
+    }
+
     // Start listening only after everything is ready
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => {
         console.log(`✓ Server running on port ${PORT}`);
-        console.log(`✓ API ready at http://localhost:${PORT}/api`);
+        console.log(`✓ API ready at /api`);
     });
 };
 

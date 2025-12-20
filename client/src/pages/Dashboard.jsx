@@ -18,7 +18,7 @@ const Dashboard = () => {
                         Authorization: `Bearer ${token}`,
                     },
                 };
-                const { data } = await axios.get('http://localhost:5000/api/detect/history', config);
+                const { data } = await axios.get('/api/detect/history', config);
                 setHistory(data);
             } catch (error) {
                 console.error('Error fetching history:', error);
@@ -96,7 +96,7 @@ const Dashboard = () => {
                                         <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors"></div>
                                         {/* Assuming inputImageUrl is relative path or full URL. For mock, might be empty or local path. */}
                                         {scan.inputImageUrl ? (
-                                            <img src={`http://localhost:5000${scan.inputImageUrl}`} alt="Crop" className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
+                                            <img src={`${scan.inputImageUrl}`} alt="Crop" className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
                                         ) : (
                                             <div className="w-full h-full flex items-center justify-center bg-stone-100 text-stone-400">No Image</div>
                                         )}

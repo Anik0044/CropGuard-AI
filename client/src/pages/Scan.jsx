@@ -17,7 +17,7 @@ const Scan = () => {
     useEffect(() => {
         const fetchCrops = async () => {
             try {
-                const { data } = await axios.get('http://localhost:5000/api/crops');
+                const { data } = await axios.get('/api/crops');
                 setAllCrops(data);
             } catch (error) {
                 console.error('Error fetching crops:', error);
@@ -64,7 +64,7 @@ const Scan = () => {
                 },
             };
 
-            const { data } = await axios.post('http://localhost:5000/api/detect', formData, config);
+            const { data } = await axios.post('/api/detect', formData, config);
             setResult(data.data);
         } catch (error) {
             console.error('Scan error:', error);

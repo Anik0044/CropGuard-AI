@@ -1,0 +1,17 @@
+{
+    "name": "cropguard-ai",
+    "version": "1.0.0",
+    "private": true,
+    "scripts": {
+        "start": "node server/server.js",
+        "build": "npm install --prefix client && npm run build --prefix client && npm install --prefix server",
+        "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+        "install-all": "npm install && npm install --prefix server && npm install --prefix client"
+    },
+    "devDependencies": {
+        "concurrently": "^8.2.0"
+    },
+    "engines": {
+        "node": ">=16.0.0"
+    }
+}

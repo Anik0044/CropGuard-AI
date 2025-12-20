@@ -11,7 +11,7 @@ const Education = () => {
     useEffect(() => {
         const fetchCrops = async () => {
             try {
-                const { data } = await axios.get('http://localhost:5000/api/crops');
+                const { data } = await axios.get('/api/crops');
                 setCrops(data);
             } catch (error) {
                 console.error('Error fetching crops:', error);
@@ -45,8 +45,8 @@ const Education = () => {
                     <button
                         onClick={() => setActiveTab('about')}
                         className={`px-6 py-3 font-bold transition ${activeTab === 'about'
-                                ? 'text-nature-700 border-b-4 border-nature-600'
-                                : 'text-stone-500 hover:text-nature-600'
+                            ? 'text-nature-700 border-b-4 border-nature-600'
+                            : 'text-stone-500 hover:text-nature-600'
                             }`}
                     >
                         About the System
@@ -54,8 +54,8 @@ const Education = () => {
                     <button
                         onClick={() => setActiveTab('library')}
                         className={`px-6 py-3 font-bold transition ${activeTab === 'library'
-                                ? 'text-nature-700 border-b-4 border-nature-600'
-                                : 'text-stone-500 hover:text-nature-600'
+                            ? 'text-nature-700 border-b-4 border-nature-600'
+                            : 'text-stone-500 hover:text-nature-600'
                             }`}
                     >
                         Disease Library

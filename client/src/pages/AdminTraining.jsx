@@ -20,7 +20,7 @@ const AdminTraining = () => {
 
     const fetchCrops = async () => {
         try {
-            const { data } = await axios.get('http://localhost:5000/api/crops');
+            const { data } = await axios.get('/api/crops');
             setCrops(data);
         } catch (error) {
             console.error('Error fetching crops', error);
@@ -30,7 +30,7 @@ const AdminTraining = () => {
     const fetchSignatures = async () => {
         try {
             const token = localStorage.getItem('token');
-            const { data } = await axios.get('http://localhost:5000/api/signatures', {
+            const { data } = await axios.get('/api/signatures', {
                 headers: { Authorization: `Bearer ${token}` }
             });
             setSignatures(data);
@@ -61,7 +61,7 @@ const AdminTraining = () => {
 
         try {
             const token = localStorage.getItem('token');
-            const { data } = await axios.post('http://localhost:5000/api/signatures', formData, {
+            const { data } = await axios.post('/api/signatures', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     Authorization: `Bearer ${token}`

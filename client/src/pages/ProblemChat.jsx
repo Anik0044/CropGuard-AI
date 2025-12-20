@@ -18,7 +18,7 @@ const ProblemChat = () => {
         try {
             const token = JSON.parse(localStorage.getItem('userInfo'))?.token;
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            const { data } = await axios.get('http://localhost:5000/api/problems', config);
+            const { data } = await axios.get('/api/problems', config);
             setProblems(data);
         } catch (error) {
             console.error('Error fetching problems:', error);
@@ -32,7 +32,7 @@ const ProblemChat = () => {
         try {
             const token = JSON.parse(localStorage.getItem('userInfo'))?.token;
             const config = { headers: { Authorization: `Bearer ${token}` } };
-            const { data } = await axios.post('http://localhost:5000/api/problems/auth', { password }, config);
+            const { data } = await axios.post('/api/problems/auth', { password }, config);
             if (data.success) {
                 setAuthenticated(true);
                 fetchProblems();
@@ -61,7 +61,7 @@ const ProblemChat = () => {
                 } : null
             };
 
-            const { data } = await axios.post(`http://localhost:5000/api/problems/${selectedId}/respond`, payload, config);
+            const { data } = await axios.post(`/api/problems/${selectedId}/respond`, payload, config);
 
             setProblems(problems.map(p => p._id === selectedId ? data : p));
             setResponseText('');

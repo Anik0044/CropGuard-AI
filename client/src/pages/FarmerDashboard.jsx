@@ -18,7 +18,7 @@ const FarmerDashboard = () => {
                     Authorization: `Bearer ${token}`,
                 },
             };
-            const { data } = await axios.get('http://localhost:5000/api/detect/history', config);
+            const { data } = await axios.get('/api/detect/history', config);
             setHistory(data);
         } catch (error) {
             console.error('Error fetching history:', error);
@@ -47,7 +47,7 @@ const FarmerDashboard = () => {
                     Authorization: `Bearer ${token}`,
                 },
             };
-            await axios.delete(`http://localhost:5000/api/detect/${id}`, config);
+            await axios.delete(`/api/detect/${id}`, config);
             fetchHistory();
         } catch (error) {
             console.error('Error deleting scan:', error);
@@ -157,7 +157,7 @@ const FarmerDashboard = () => {
                                 <div className="h-48 overflow-hidden relative">
                                     <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors"></div>
                                     {scan.inputImageUrl ? (
-                                        <img src={`http://localhost:5000${scan.inputImageUrl}`} alt="Crop" className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
+                                        <img src={`${scan.inputImageUrl}`} alt="Crop" className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
                                     ) : (
                                         <div className="w-full h-full flex items-center justify-center bg-stone-100 text-stone-400">No Image</div>
                                     )}

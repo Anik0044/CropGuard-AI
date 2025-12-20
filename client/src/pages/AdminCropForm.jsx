@@ -39,7 +39,7 @@ const AdminCropForm = () => {
                 }]
             };
 
-            await axios.post('http://localhost:5000/api/crops', payload, config);
+            await axios.post('/api/crops', payload, config);
             alert('Crop Data Added Successfully');
             navigate('/dashboard');
         } catch (error) {
