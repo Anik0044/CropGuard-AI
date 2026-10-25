@@ -29,7 +29,7 @@ const AdminTraining = () => {
 
     const fetchSignatures = async () => {
         try {
-            const token = localStorage.getItem('token');
+            const token = JSON.parse(localStorage.getItem('userInfo'))?.token;
             const { data } = await axios.get('/api/signatures', {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -60,7 +60,7 @@ const AdminTraining = () => {
         formData.append('diseaseName', selectedDisease);
 
         try {
-            const token = localStorage.getItem('token');
+            const token = JSON.parse(localStorage.getItem('userInfo'))?.token;
             const { data } = await axios.post('/api/signatures', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',

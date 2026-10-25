@@ -4,13 +4,6 @@ const CropData = require('./models/CropData');
 
 dotenv.config();
 
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('MongoDB Connected for Seeding'))
-    .catch((err) => {
-        console.error(err);
-        process.exit(1);
-    });
-
 // Comprehensive Disease Knowledge Base
 const crops = [
     {
@@ -944,6 +937,12 @@ const crops = [
 
 const seedDatabase = async () => {
     try {
+        console.log('Connecting to MongoDB for Seeding...');
+        await mongoose.connect(process.env.MONGO_URI, {
+            serverSelectionTimeoutMS: 5000,
+        });
+        console.log('MongoDB Connected for Seeding');
+
         // Clear existing data
         await CropData.deleteMany();
         console.log('Existing crop data cleared');
@@ -963,6 +962,8 @@ const seedDatabase = async () => {
         console.error('❌ Error seeding database:', error);
         process.exit(1);
     }
-};
+module.exports = { crops, seedDatabase };
 
-seedDatabase();
+if (require.main === module) {
+    seedDatabase();
+}

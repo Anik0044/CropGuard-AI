@@ -4,13 +4,6 @@ const User = require('./models/User');
 
 dotenv.config();
 
-mongoose.connect(process.env.MONGO_URI)
-    .then(() => console.log('MongoDB Connected'))
-    .catch((err) => {
-        console.error(err);
-        process.exit(1);
-    });
-
 const users = [
     {
         name: 'Admin User',
@@ -40,12 +33,17 @@ const users = [
 
 const seedUsers = async () => {
     try {
+        console.log('Connecting to MongoDB...');
+        await mongoose.connect(process.env.MONGO_URI, {
+            serverSelectionTimeoutMS: 5000,
+        });
+        console.log('MongoDB Connected.');
+
         // Clear existing users
         await User.deleteMany();
         console.log('Existing users cleared.');
 
-        // Create new users
-        // We use User.create instead of insertMany to trigger the 'save' middleware for password hashing
+        // Create new users sequentially to trigger password hashing pre-save hook
         for (const user of users) {
             await User.create(user);
         }
@@ -57,12 +55,11 @@ const seedUsers = async () => {
         console.log('Guest:   Username: guest  | Pass: 12345678');
         console.log('-----------------------------------');
 
-        process.exit();
+        process.exit(0);
     } catch (error) {
-        console.error(`${error}`);
+        console.error('Seeding Error:', error.message);
         process.exit(1);
     }
 };
 
-// seedUsers() called after connection
 seedUsers();
