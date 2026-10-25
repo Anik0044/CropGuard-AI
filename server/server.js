@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
+const { autoSeedIfEmpty } = require('./utils/autoSeed');
 
 dotenv.config();
 
@@ -15,20 +16,36 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // MongoDB Connection Function
 const connectDB = async () => {
+    let uri = process.env.MONGO_URI;
+
+    // First attempt to connect to specified MONGO_URI if available
+    if (uri) {
+        try {
+            const conn = await mongoose.connect(uri, {
+                serverSelectionTimeoutMS: 2000,
+                socketTimeoutMS: 45000,
+            });
+            console.log(`MongoDB Connected: ${conn.connection.host}`);
+            console.log(`Database: ${conn.connection.name}`);
+            await autoSeedIfEmpty();
+            return true;
+        } catch (error) {
+            console.warn(`Could not connect to external MongoDB at ${uri}: ${error.message}`);
+        }
+    }
+
+    // Fallback to in-memory MongoDB
+    console.log('Starting In-memory MongoDB...');
     try {
-        const conn = await mongoose.connect(process.env.MONGO_URI, {
-            serverSelectionTimeoutMS: 5000,
-            socketTimeoutMS: 45000,
-        });
-        console.log(`MongoDB Connected: ${conn.connection.host}`);
-        console.log(`Database: ${conn.connection.name}`);
+        const { MongoMemoryServer } = require('mongodb-memory-server');
+        const mongod = await MongoMemoryServer.create();
+        const memUri = mongod.getUri();
+        const conn = await mongoose.connect(memUri);
+        console.log(`In-memory MongoDB connected: ${conn.connection.host}`);
+        await autoSeedIfEmpty();
         return true;
-    } catch (error) {
-        console.error(`MongoDB Connection Error: ${error.message}`);
-        console.error('Please check:');
-        console.error('1. Your internet connection');
-        console.error('2. MongoDB Atlas IP whitelist includes your current IP');
-        console.error('3. Username and password are correct in .env file');
+    } catch (memError) {
+        console.error(`In-memory MongoDB Error: ${memError.message}`);
         process.exit(1);
     }
 };
@@ -41,7 +58,7 @@ const startServer = async () => {
     // Only register routes after successful database connection
     const authRoutes = require('./routes/authRoutes');
     const detectRoutes = require('./routes/detectRoutes');
-    const problemRoutes = require('./routes/problemRoutes'); // Added problemRoutes
+    const problemRoutes = require('./routes/problemRoutes');
     const cropRoutes = require('./routes/cropRoutes');
     const chatbotRoutes = require('./routes/chatbotRoutes');
     const signatureRoutes = require('./routes/signatureRoutes');
@@ -49,7 +66,7 @@ const startServer = async () => {
 
     app.use('/api/auth', authRoutes);
     app.use('/api/detect', detectRoutes);
-    app.use('/api/problems', problemRoutes); // Registered problemRoutes
+    app.use('/api/problems', problemRoutes);
     app.use('/api/crops', cropRoutes);
     app.use('/api/chatbot', chatbotRoutes);
     app.use('/api/signatures', signatureRoutes);
