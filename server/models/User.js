@@ -52,18 +52,17 @@ const userSchema = new mongoose.Schema({
 });
 
 // Hash password before saving & protect permanent/admin accounts
-userSchema.pre('save', async function (next) {
+userSchema.pre('save', async function () {
   // Never expire admin or default seeded test accounts
   if (this.role === 'admin' || ['admin', 'farmer', 'guest'].includes(this.username)) {
     this.isPermanent = true;
   }
 
   if (!this.isModified('password')) {
-    return next();
+    return;
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-  next();
 });
 
 // Compare password method
