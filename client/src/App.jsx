@@ -1,7 +1,7 @@
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import Chatbot from './components/Chatbot';
+import ChatWidget from './components/ChatWidget';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
@@ -54,7 +54,7 @@ function App() {
         </Routes>
       </main>
       <Footer />
-      <Chatbot />
+      <ChatWidget />
     </div>
   );
 }
