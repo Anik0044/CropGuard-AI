@@ -962,6 +962,8 @@ const seedDatabase = async () => {
         console.error('❌ Error seeding database:', error);
         process.exit(1);
     }
+};
+
 module.exports = { crops, seedDatabase };
 
 if (require.main === module) {

@@ -25,7 +25,7 @@ const scanResultSchema = new mongoose.Schema({
     status: {
         type: String,
         enum: ['completed', 'pending', 'pending_review', 'resolved', 'approved'],
-        default: 'completed', // Reverted to completed/visible by default
+        default: 'completed',
     },
     adminComment: {
         type: String,
@@ -41,6 +41,11 @@ const scanResultSchema = new mongoose.Schema({
     date: {
         type: Date,
         default: Date.now,
+    },
+    createdAt: {
+        type: Date,
+        default: Date.now,
+        expires: 86400, // TTL Index: Auto-deletes scan records after 24 hours (86400 seconds)
     },
     customDetails: {
         symptoms: [String],

@@ -10,6 +10,7 @@ const defaultUsers = [
         role: 'admin',
         location: 'Headquarters',
         farmSize: 0,
+        isPermanent: true,
     },
     {
         name: 'John Farmer',
@@ -18,6 +19,7 @@ const defaultUsers = [
         role: 'farmer',
         location: 'Green Valley Village',
         farmSize: 15,
+        isPermanent: true,
     },
     {
         name: 'Guest User',
@@ -26,6 +28,7 @@ const defaultUsers = [
         role: 'guest',
         location: 'Unknown',
         farmSize: 0,
+        isPermanent: true,
     }
 ];
 

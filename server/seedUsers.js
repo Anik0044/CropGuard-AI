@@ -12,6 +12,7 @@ const users = [
         role: 'admin',
         location: 'Headquarters',
         farmSize: 0,
+        isPermanent: true,
     },
     {
         name: 'John Farmer',
@@ -20,6 +21,7 @@ const users = [
         role: 'farmer',
         location: 'Green Valley Village',
         farmSize: 15,
+        isPermanent: true,
     },
     {
         name: 'Guest User',
@@ -28,6 +30,7 @@ const users = [
         role: 'guest',
         location: 'Unknown',
         farmSize: 0,
+        isPermanent: true,
     }
 ];
 

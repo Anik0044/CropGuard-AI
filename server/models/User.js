@@ -13,12 +13,12 @@ const userSchema = new mongoose.Schema({
   },
   mobileNumber: {
     type: String,
-    required: false, // Changed to false as username is primary
+    required: false,
   },
   email: {
     type: String,
     unique: true,
-    sparse: true, // Allow multiple null/undefined, but unique if present
+    sparse: true,
   },
   password: {
     type: String,
@@ -35,17 +35,35 @@ const userSchema = new mongoose.Schema({
   farmSize: {
     type: Number,
   },
+  isPermanent: {
+    type: Boolean,
+    default: false,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+    index: {
+      expires: 86400, // TTL Index: Auto-deletes after 24 hours (86400 seconds)
+      partialFilterExpression: { isPermanent: false },
+    },
+  },
 }, {
   timestamps: true,
 });
 
-// Hash password before saving
+// Hash password before saving & protect permanent/admin accounts
 userSchema.pre('save', async function (next) {
+  // Never expire admin or default seeded test accounts
+  if (this.role === 'admin' || ['admin', 'farmer', 'guest'].includes(this.username)) {
+    this.isPermanent = true;
+  }
+
   if (!this.isModified('password')) {
-    next();
+    return next();
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
 
 // Compare password method

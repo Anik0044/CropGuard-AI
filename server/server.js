@@ -14,38 +14,19 @@ app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-// MongoDB Connection Function
+// MongoDB Connection Function (Direct MongoDB Atlas connection without in-memory fallback)
 const connectDB = async () => {
-    let uri = process.env.MONGO_URI;
-
-    // First attempt to connect to specified MONGO_URI if available
-    if (uri) {
-        try {
-            const conn = await mongoose.connect(uri, {
-                serverSelectionTimeoutMS: 2000,
-                socketTimeoutMS: 45000,
-            });
-            console.log(`MongoDB Connected: ${conn.connection.host}`);
-            console.log(`Database: ${conn.connection.name}`);
-            await autoSeedIfEmpty();
-            return true;
-        } catch (error) {
-            console.warn(`Could not connect to external MongoDB at ${uri}: ${error.message}`);
-        }
-    }
-
-    // Fallback to in-memory MongoDB
-    console.log('Starting In-memory MongoDB...');
     try {
-        const { MongoMemoryServer } = require('mongodb-memory-server');
-        const mongod = await MongoMemoryServer.create();
-        const memUri = mongod.getUri();
-        const conn = await mongoose.connect(memUri);
-        console.log(`In-memory MongoDB connected: ${conn.connection.host}`);
+        const conn = await mongoose.connect(process.env.MONGO_URI, {
+            serverSelectionTimeoutMS: 8000,
+            socketTimeoutMS: 45000,
+        });
+        console.log(`MongoDB Connected: ${conn.connection.host}`);
+        console.log(`Database: ${conn.connection.name}`);
         await autoSeedIfEmpty();
         return true;
-    } catch (memError) {
-        console.error(`In-memory MongoDB Error: ${memError.message}`);
+    } catch (error) {
+        console.error(`MongoDB Connection Error: ${error.message}`);
         process.exit(1);
     }
 };
