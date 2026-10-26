@@ -70,18 +70,18 @@ const Footer = () => {
                         <ul className="space-y-3">
                             <li className="flex items-start gap-2">
                                 <MapPin size={18} className="text-amber-400 mt-1 flex-shrink-0" />
-                                <span className="text-nature-100">123 Agricultural Ave, Farm City, FC 12345</span>
+                                <span className="text-nature-100">Dhaka, Bangladesh</span>
                             </li>
                             <li className="flex items-center gap-2">
                                 <Mail size={18} className="text-amber-400 flex-shrink-0" />
-                                <a href="mailto:support@cropguard.com" className="text-nature-100 hover:text-amber-400 transition">
-                                    support@cropguard.com
+                                <a href="mailto:aniktonmoy2000@gmail.com" className="text-nature-100 hover:text-amber-400 transition">
+                                    aniktonmoy2000@gmail.com
                                 </a>
                             </li>
                             <li className="flex items-center gap-2">
                                 <Phone size={18} className="text-amber-400 flex-shrink-0" />
-                                <a href="tel:+1234567890" className="text-nature-100 hover:text-amber-400 transition">
-                                    +1 (234) 567-890
+                                <a href="tel:01851541794" className="text-nature-100 hover:text-amber-400 transition">
+                                    01851541794
                                 </a>
                             </li>
                         </ul>
@@ -95,7 +95,7 @@ const Footer = () => {
                             © {currentYear} CropGuard AI. All rights reserved.
                         </p>
                         <p className="text-nature-200 text-sm">
-                            Made with ❤️ for farmers worldwide
+                            Made with ❤️ by Anik Hossain
                         </p>
                     </div>
                 </div>

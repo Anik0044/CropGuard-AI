@@ -19,6 +19,8 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatMessageWithLinks } from '../utils/chatUtils';
 
+const MotionDiv = motion.div;
+
 const AdminSupportChat = () => {
     const [conversations, setConversations] = useState([]);
     const [selectedUser, setSelectedUser] = useState(null);
@@ -52,9 +54,11 @@ const AdminSupportChat = () => {
 
             setConversations(data || []);
 
-            // Auto-select first conversation if none selected
+            // Auto-select first conversation if none selected (desktop only to allow mobile to show user list first)
             if (isInitial && data && data.length > 0 && !selectedUser) {
-                setSelectedUser(data[0].user || { _id: data[0].userId });
+                if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+                    setSelectedUser(data[0].user || { _id: data[0].userId });
+                }
             }
         } catch (error) {
             console.error('Error fetching admin conversations:', error);
@@ -95,6 +99,7 @@ const AdminSupportChat = () => {
         }, 3000);
 
         return () => clearInterval(convInterval);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // Polling selected conversation messages
@@ -156,7 +161,7 @@ const AdminSupportChat = () => {
                     headers: { Authorization: `Bearer ${token}` }
                 }).catch(() => {});
             }, 3000);
-        } catch (err) {
+        } catch {
             // Silently ignore ping errors
         }
     };
@@ -203,12 +208,12 @@ const AdminSupportChat = () => {
 
     return (
         <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-slate-900 via-nature-950 to-slate-900 py-6 px-3 sm:px-6">
-            <div className="max-w-7xl mx-auto h-[84vh] flex bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/15 overflow-hidden">
+            <div className="max-w-7xl mx-auto h-[calc(100vh-200px)] min-h-[500px] max-h-[750px] flex bg-white/10 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/15 overflow-hidden">
                 
                 {/* Conversations Sidebar */}
-                <div className={`w-full md:w-96 flex flex-col border-r border-white/10 bg-slate-900/80 backdrop-blur-md ${selectedUser ? 'hidden md:flex' : 'flex'}`}>
+                <div className={`w-full md:w-96 flex flex-col border-r border-white/10 bg-slate-900/80 backdrop-blur-md h-full min-h-0 flex-shrink-0 ${selectedUser ? 'hidden md:flex' : 'flex'}`}>
                     {/* Sidebar Header */}
-                    <div className="p-4 border-b border-white/10 flex items-center justify-between">
+                    <div className="flex-shrink-0 p-4 border-b border-white/10 flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <ShieldCheck className="text-amber-400" size={24} />
                             <div>
@@ -224,7 +229,7 @@ const AdminSupportChat = () => {
                     </div>
 
                     {/* Search Bar */}
-                    <div className="p-3 border-b border-white/10">
+                    <div className="flex-shrink-0 p-3 border-b border-white/10">
                         <div className="relative">
                             <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
                             <input
@@ -238,7 +243,7 @@ const AdminSupportChat = () => {
                     </div>
 
                     {/* Conversation List */}
-                    <div className="flex-1 overflow-y-auto divide-y divide-white/5">
+                    <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-white/5">
                         {loadingConversations ? (
                             <div className="p-8 text-center text-slate-400">
                                 <Loader2 className="animate-spin mx-auto mb-2 text-emerald-400" size={24} />
@@ -313,17 +318,19 @@ const AdminSupportChat = () => {
                 </div>
 
                 {/* Main Chat Area */}
-                <div className={`flex-1 flex flex-col bg-slate-950/60 backdrop-blur-md ${!selectedUser ? 'hidden md:flex' : 'flex'}`}>
+                <div className={`flex-1 flex flex-col bg-slate-950/60 backdrop-blur-md h-full min-h-0 ${!selectedUser ? 'hidden md:flex' : 'flex'}`}>
                     {selectedUser ? (
                         <>
                             {/* Chat Header */}
-                            <div className="p-4 border-b border-white/10 bg-slate-900/60 flex items-center justify-between">
+                            <div className="flex-shrink-0 p-4 border-b border-white/10 bg-slate-900/60 flex items-center justify-between">
                                 <div className="flex items-center gap-3">
                                     <button
                                         onClick={() => setSelectedUser(null)}
-                                        className="md:hidden p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg"
+                                        className="md:hidden p-2 text-slate-300 hover:text-white hover:bg-white/10 rounded-lg flex items-center gap-1 text-xs font-semibold"
+                                        title="Back to User List"
                                     >
-                                        <ChevronLeft size={20} />
+                                        <ChevronLeft size={18} />
+                                        Users
                                     </button>
                                     <div className="w-10 h-10 rounded-full bg-emerald-600/40 border border-emerald-400 flex items-center justify-center text-white font-bold">
                                         {(selectedUser?.name || selectedUser?.username || 'U')[0].toUpperCase()}
@@ -358,7 +365,7 @@ const AdminSupportChat = () => {
                             </div>
 
                             {/* Message History */}
-                            <div className="flex-1 p-4 overflow-y-auto space-y-4">
+                            <div className="flex-1 min-h-0 p-4 overflow-y-auto space-y-4">
                                 {loadingMessages ? (
                                     <div className="h-full flex items-center justify-center">
                                         <Loader2 className="animate-spin text-emerald-400" size={32} />
@@ -453,7 +460,7 @@ const AdminSupportChat = () => {
                             )}
 
                             {/* Input Form */}
-                            <form onSubmit={handleSendMessage} className="p-3 bg-slate-900/90 border-t border-white/10 flex items-center gap-2">
+                            <form onSubmit={handleSendMessage} className="flex-shrink-0 p-3 bg-slate-900/90 border-t border-white/10 flex items-center gap-2">
                                 <input
                                     type="file"
                                     ref={fileInputRef}
@@ -502,7 +509,7 @@ const AdminSupportChat = () => {
             {/* Lightbox / Enlarged Image Modal */}
             <AnimatePresence>
                 {enlargedImage && (
-                    <motion.div
+                    <MotionDiv
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
@@ -522,7 +529,7 @@ const AdminSupportChat = () => {
                                 <X size={20} />
                             </button>
                         </div>
-                    </motion.div>
+                    </MotionDiv>
                 )}
             </AnimatePresence>
         </div>

@@ -10,7 +10,8 @@ import {
     Clock,
     Search,
     Loader2,
-    CheckCheck
+    CheckCheck,
+    ChevronLeft
 } from 'lucide-react';
 import axios from 'axios';
 import io from 'socket.io-client';
@@ -78,9 +79,11 @@ const AdminDashboard = () => {
 
             setConversations(data || []);
 
-            // Auto-select first user if none selected
+            // Auto-select first user if none selected (desktop only to allow mobile to show user list first)
             if (isInitial && data && data.length > 0 && !selectedUser) {
-                setSelectedUser(data[0].user || { _id: data[0].userId });
+                if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+                    setSelectedUser(data[0].user || { _id: data[0].userId });
+                }
             }
         } catch (error) {
             console.error('Error fetching admin conversations:', error);
@@ -294,9 +297,9 @@ const AdminDashboard = () => {
     const totalUnreadChats = conversations.reduce((acc, curr) => acc + (curr.unreadCount || 0), 0);
 
     return (
-        <div className="max-w-7xl mx-auto px-4 py-8">
+        <div className="max-w-7xl mx-auto px-4 py-6">
             {/* Header */}
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
                 <div>
                     <h1 className="text-3xl font-extrabold text-nature-900 tracking-tight">
                         Admin Command Center
@@ -340,7 +343,7 @@ const AdminDashboard = () => {
             </div>
 
             {/* Quick Metrics */}
-            <div className="grid md:grid-cols-3 gap-6 mb-8">
+            <div className="grid md:grid-cols-3 gap-6 mb-6">
                 <div className="card border-l-8 border-l-nature-600">
                     <div className="flex items-center gap-4 mb-2">
                         <div className="p-3 bg-nature-100 rounded-lg text-nature-600">
@@ -387,11 +390,11 @@ const AdminDashboard = () => {
 
             {/* TAB 1: LIVE SUPPORT CHAT */}
             {activeTab === 'chat' && (
-                <div className="bg-white rounded-2xl shadow-xl border border-stone-200 overflow-hidden flex flex-col md:flex-row h-[700px] mb-12">
-                    {/* User Selection Sidebar */}
-                    <div className="w-full md:w-80 border-r border-stone-200 flex flex-col bg-stone-50">
+                <div className="bg-white rounded-2xl shadow-xl border border-stone-200 overflow-hidden flex flex-col md:flex-row h-[calc(100vh-220px)] min-h-[520px] max-h-[760px] mb-8">
+                    {/* User Selection Sidebar - On mobile, hidden if a user is selected */}
+                    <div className={`w-full md:w-80 border-r border-stone-200 flex flex-col bg-stone-50 h-full min-h-0 flex-shrink-0 ${selectedUser ? 'hidden md:flex' : 'flex'}`}>
                         {/* Sidebar Header */}
-                        <div className="p-4 border-b border-stone-200 bg-stone-100 flex items-center justify-between">
+                        <div className="flex-shrink-0 p-3.5 border-b border-stone-200 bg-stone-100 flex items-center justify-between">
                             <h3 className="font-bold text-stone-800 text-sm flex items-center gap-2">
                                 <Users size={16} className="text-emerald-600" />
                                 Select User ({filteredConversations.length})
@@ -404,7 +407,7 @@ const AdminDashboard = () => {
                         </div>
 
                         {/* Search User Input */}
-                        <div className="p-3 border-b border-stone-200">
+                        <div className="flex-shrink-0 p-3 border-b border-stone-200">
                             <div className="relative">
                                 <Search className="absolute left-3 top-2.5 text-stone-400" size={15} />
                                 <input
@@ -417,8 +420,8 @@ const AdminDashboard = () => {
                             </div>
                         </div>
 
-                        {/* User List */}
-                        <div className="flex-1 overflow-y-auto divide-y divide-stone-100">
+                        {/* User List with scroll */}
+                        <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-stone-100">
                             {loadingConversations ? (
                                 <div className="p-8 text-center text-stone-400">
                                     <Loader2 className="animate-spin mx-auto mb-2 text-emerald-600" size={22} />
@@ -482,14 +485,24 @@ const AdminDashboard = () => {
                         </div>
                     </div>
 
-                    {/* Chat Messages & Reply Area */}
-                    <div className="flex-1 flex flex-col bg-[#f8fafc]">
+                    {/* Chat Messages & Reply Area - On mobile, hidden if no user is selected */}
+                    <div className={`flex-1 flex flex-col bg-[#f8fafc] h-full min-h-0 ${!selectedUser ? 'hidden md:flex' : 'flex'}`}>
                         {selectedUser ? (
                             <>
-                                {/* Conversation Header */}
-                                <div className="p-3.5 border-b border-stone-200 bg-white flex items-center justify-between shadow-sm">
+                                {/* Conversation Header with Mobile Back Button */}
+                                <div className="flex-shrink-0 p-3.5 border-b border-stone-200 bg-white flex items-center justify-between shadow-sm">
                                     <div className="flex items-center gap-3">
-                                        <div className="relative">
+                                        {/* Mobile Back Button to Return to User List */}
+                                        <button
+                                            onClick={() => setSelectedUser(null)}
+                                            className="md:hidden p-1.5 -ml-1 text-stone-600 hover:text-stone-900 hover:bg-stone-100 rounded-lg flex items-center gap-1 text-xs font-semibold"
+                                            title="Back to User List"
+                                        >
+                                            <ChevronLeft size={18} />
+                                            Users
+                                        </button>
+
+                                        <div className="relative flex-shrink-0">
                                             <div className="w-10 h-10 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center">
                                                 {(selectedUser.name || selectedUser.username || 'U')[0].toUpperCase()}
                                             </div>
@@ -515,8 +528,8 @@ const AdminDashboard = () => {
                                     </div>
                                 </div>
 
-                                {/* Message History */}
-                                <div className="flex-1 p-4 overflow-y-auto space-y-3">
+                                {/* Message History - Only this scrolls */}
+                                <div className="flex-1 min-h-0 p-4 overflow-y-auto space-y-3">
                                     {loadingMessages ? (
                                         <div className="h-full flex items-center justify-center text-stone-400">
                                             <Loader2 className="animate-spin text-emerald-600" size={28} />
@@ -590,8 +603,8 @@ const AdminDashboard = () => {
                                     <div ref={messagesEndRef} />
                                 </div>
 
-                                {/* Reply Input Box */}
-                                <form onSubmit={handleSendReply} className="p-3 bg-white border-t border-stone-200 flex items-center gap-2">
+                                {/* Fixed Reply Input Box at Bottom */}
+                                <form onSubmit={handleSendReply} className="flex-shrink-0 p-3 bg-white border-t border-stone-200 flex items-center gap-2">
                                     <input
                                         type="text"
                                         placeholder={`Reply to ${selectedUser.name || selectedUser.username}...`}
@@ -603,7 +616,7 @@ const AdminDashboard = () => {
                                     <button
                                         type="submit"
                                         disabled={!replyText.trim() || isSending}
-                                        className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm flex items-center gap-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+                                        className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-sm flex items-center gap-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm flex-shrink-0"
                                     >
                                         {isSending ? (
                                             <Loader2 size={16} className="animate-spin" />

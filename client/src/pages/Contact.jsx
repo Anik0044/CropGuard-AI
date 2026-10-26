@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { Mail, Phone, MapPin, Send, CheckCircle, AlertCircle, Microscope } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle, Microscope } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AuthContext from '../context/AuthContext';
 
@@ -15,7 +15,6 @@ const Contact = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // In a real app, this would send to backend
         console.log('Form submitted:', formData);
         setSubmitted(true);
         setTimeout(() => {
@@ -121,7 +120,7 @@ const Contact = () => {
                                     </div>
                                     <div>
                                         <h3 className="font-bold text-stone-800 mb-1">Office Address</h3>
-                                        <p className="text-stone-600">123 Agricultural Avenue<br />Farm City, FC 12345<br />Country</p>
+                                        <p className="text-stone-600">Dhaka, Bangladesh</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-4">
@@ -130,8 +129,8 @@ const Contact = () => {
                                     </div>
                                     <div>
                                         <h3 className="font-bold text-stone-800 mb-1">Email Us</h3>
-                                        <a href="mailto:support@cropguard.com" className="text-nature-600 hover:underline">
-                                            support@cropguard.com
+                                        <a href="mailto:aniktonmoy2000@gmail.com" className="text-nature-600 hover:underline">
+                                            aniktonmoy2000@gmail.com
                                         </a>
                                     </div>
                                 </div>
@@ -141,8 +140,8 @@ const Contact = () => {
                                     </div>
                                     <div>
                                         <h3 className="font-bold text-stone-800 mb-1">Call Us</h3>
-                                        <a href="tel:+1234567890" className="text-nature-600 hover:underline">
-                                            +1 (234) 567-890
+                                        <a href="tel:01851541794" className="text-nature-600 hover:underline">
+                                            01851541794
                                         </a>
                                     </div>
                                 </div>
@@ -175,7 +174,7 @@ const Contact = () => {
                         <div className="card bg-amber-50 border-l-4 border-l-amber-500">
                             <h3 className="text-lg font-bold text-amber-900 mb-2">Need Immediate Help?</h3>
                             <p className="text-amber-800 text-sm">
-                                For urgent crop disease issues, please call our hotline or use our AI chatbot for instant assistance.
+                                For urgent crop disease issues, please contact our support team or use our Live Support Chat for instant assistance.
                             </p>
                         </div>
                     </div>
