@@ -21,7 +21,8 @@ const cleanExpiredTyping = (conversationKey) => {
 // @access  Private (User or Admin)
 const sendMessage = async (req, res) => {
     try {
-        const { message, targetUserId } = req.body;
+        const { message } = req.body;
+        const targetUserId = req.body.targetUserId || req.body.userId;
         const imageUrl = req.file ? `/uploads/${req.file.filename}` : '';
 
         if (!message?.trim() && !imageUrl) {
@@ -40,6 +41,7 @@ const sendMessage = async (req, res) => {
             }
             const targetUser = await User.findById(targetUserId);
             if (!targetUser) {
+                // If user not found by ID, try finding by string or return error
                 return res.status(404).json({ message: 'Target user not found' });
             }
 
@@ -63,11 +65,22 @@ const sendMessage = async (req, res) => {
             senderId: req.user._id,
             senderName: req.user.name || req.user.username,
             senderRole: req.user.role,
+            sender: req.user.role === 'admin' ? 'admin' : 'user', // Specific sender: 'admin' for replies
             message: message ? message.trim() : '',
             imageUrl,
             readByAdmin,
             readByUser,
         });
+
+        // Real-time Socket.io emission to the specific user's room and admin room
+        const io = req.app.get('io');
+        if (io) {
+            const userRoom = conversationUserId.toString();
+            io.to(userRoom).emit('receive_message', newChat);
+            io.to(userRoom).emit('message', newChat);
+            io.to('admin_room').emit('receive_message', newChat);
+            io.to('admin_room').emit('message', newChat);
+        }
 
         // Clear typing indicator for sender
         const convKey = conversationUserId.toString();
@@ -127,22 +140,38 @@ const getMessages = async (req, res) => {
 // @access  Private (Admin only)
 const getConversations = async (req, res) => {
     try {
-        // Group by userId to find the latest message and unread count per user
-        const distinctUserIds = await Chat.distinct('userId');
+        const distinctChatUserIds = await Chat.distinct('userId');
+        const nonAdminUsers = await User.find({ role: { $ne: 'admin' } }).select('name username role location farmSize');
+
+        // Combine distinct users from chats and all registered non-admin users
+        const allUserMap = new Map();
+
+        nonAdminUsers.forEach((u) => {
+            allUserMap.set(u._id.toString(), u);
+        });
+
+        // Ensure users with chats are also in map
+        await Promise.all(
+            distinctChatUserIds.map(async (uId) => {
+                const uStr = uId.toString();
+                if (!allUserMap.has(uStr)) {
+                    const uDoc = await User.findById(uId).select('name username role location farmSize');
+                    if (uDoc) allUserMap.set(uStr, uDoc);
+                }
+            })
+        );
 
         const conversations = await Promise.all(
-            distinctUserIds.map(async (uId) => {
-                const userDoc = await User.findById(uId).select('name username role location farmSize');
-                const lastMessage = await Chat.findOne({ userId: uId }).sort({ createdAt: -1 });
-                const unreadCount = await Chat.countDocuments({ userId: uId, readByAdmin: false });
+            Array.from(allUserMap.entries()).map(async ([uStr, userDoc]) => {
+                const lastMessage = await Chat.findOne({ userId: uStr }).sort({ createdAt: -1 });
+                const unreadCount = await Chat.countDocuments({ userId: uStr, readByAdmin: false });
 
-                const convKey = uId.toString();
-                cleanExpiredTyping(convKey);
-                const isUserTyping = Boolean(typingState[convKey]?.userTypingUntil);
+                cleanExpiredTyping(uStr);
+                const isUserTyping = Boolean(typingState[uStr]?.userTypingUntil);
 
                 return {
-                    userId: uId,
-                    user: userDoc || { name: 'Unknown User', username: 'unknown', role: 'farmer' },
+                    userId: uStr,
+                    user: userDoc,
                     lastMessage,
                     unreadCount,
                     isUserTyping,
@@ -150,11 +179,15 @@ const getConversations = async (req, res) => {
             })
         );
 
-        // Sort conversations with most recent activity first
+        // Sort: Users with unread messages first, then by last message time, then alphabetical
         conversations.sort((a, b) => {
+            if (b.unreadCount !== a.unreadCount) {
+                return (b.unreadCount || 0) - (a.unreadCount || 0);
+            }
             const dateA = a.lastMessage?.createdAt ? new Date(a.lastMessage.createdAt) : 0;
             const dateB = b.lastMessage?.createdAt ? new Date(b.lastMessage.createdAt) : 0;
-            return dateB - dateA;
+            if (dateB !== dateA) return dateB - dateA;
+            return (a.user?.name || '').localeCompare(b.user?.name || '');
         });
 
         res.json(conversations);

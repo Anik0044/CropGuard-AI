@@ -1,4 +1,6 @@
 const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -8,6 +10,58 @@ const { autoSeedIfEmpty } = require('./utils/autoSeed');
 dotenv.config();
 
 const app = express();
+const server = http.createServer(app);
+
+// Setup Socket.io
+const io = new Server(server, {
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST', 'PUT']
+    }
+});
+
+// Make io accessible in Express route controllers
+app.set('io', io);
+
+// Socket.io Real-Time Event Handlers
+io.on('connection', (socket) => {
+    // User joins their private room
+    socket.on('join', ({ userId }) => {
+        if (userId) {
+            const room = userId.toString();
+            socket.join(room);
+        }
+    });
+
+    // Admin joins the admin monitoring room
+    socket.on('join_admin', () => {
+        socket.join('admin_room');
+    });
+
+    // Real-time message exchange
+    socket.on('send_message', (data) => {
+        const targetRoom = data?.userId?.toString();
+        if (targetRoom) {
+            io.to(targetRoom).emit('receive_message', data);
+            io.to(targetRoom).emit('message', data);
+        }
+        io.to('admin_room').emit('receive_message', data);
+        io.to('admin_room').emit('message', data);
+    });
+
+    // Typing indicators
+    socket.on('user_typing', ({ userId, isTyping }) => {
+        if (userId) {
+            io.to('admin_room').emit('user_typing', { userId, isTyping });
+        }
+    });
+
+    socket.on('admin_typing', ({ userId, isTyping }) => {
+        if (userId) {
+            io.to(userId.toString()).emit('admin_typing', { isTyping });
+        }
+    });
+});
 
 // Middleware
 app.use(cors());
@@ -66,8 +120,9 @@ const startServer = async () => {
 
     // Start listening only after everything is ready
     const PORT = process.env.PORT || 5000;
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
         console.log(`✓ Server running on port ${PORT}`);
+        console.log(`✓ Socket.io initialized`);
         console.log(`✓ API ready at /api`);
     });
 };

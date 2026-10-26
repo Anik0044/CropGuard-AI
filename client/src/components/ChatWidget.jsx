@@ -47,12 +47,22 @@ const ChatWidget = () => {
         socketRef.current = socket;
 
         socket.on('connect', () => {
-            socket.emit('join', { userId: user._id || user.id });
+            const currentUserId = user._id || user.id;
+            socket.emit('join', { userId: currentUserId });
         });
 
         // Listen for incoming messages from Admin in real-time
         const handleNewMessage = (newMsg) => {
             if (!newMsg) return;
+
+            const currentUserId = (user._id || user.id)?.toString();
+            const msgUserId = (newMsg.userId?._id || newMsg.userId)?.toString();
+
+            // Verify message is for this user
+            if (msgUserId && currentUserId && msgUserId !== currentUserId) {
+                return;
+            }
+
             setMessages((prev) => {
                 const exists = prev.some((m) => (m._id && m._id === newMsg._id) || (m.tempId && m.tempId === newMsg.tempId));
                 if (exists) return prev;
@@ -67,6 +77,7 @@ const ChatWidget = () => {
         socket.on('receive_message', handleNewMessage);
         socket.on('message', handleNewMessage);
         socket.on('chat_message', handleNewMessage);
+        socket.on('admin_reply', handleNewMessage);
 
         // Typing indicator from Admin
         socket.on('admin_typing', (data) => {
@@ -305,7 +316,9 @@ const ChatWidget = () => {
                                 </div>
                             ) : (
                                 messages.map((msg, index) => {
-                                    const isAdmin = msg.senderRole === 'admin' || msg.sender === 'admin';
+                                    const currentUid = (user?._id || user?.id)?.toString();
+                                    const senderUid = (msg.senderId?._id || msg.senderId)?.toString();
+                                    const isAdmin = msg.senderRole === 'admin' || msg.sender === 'admin' || (senderUid && currentUid && senderUid !== currentUid);
                                     const timeStr = msg.createdAt
                                         ? new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
                                         : '';
