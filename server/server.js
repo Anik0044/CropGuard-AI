@@ -44,6 +44,7 @@ const startServer = async () => {
     const chatbotRoutes = require('./routes/chatbotRoutes');
     const signatureRoutes = require('./routes/signatureRoutes');
     const researchRoutes = require('./routes/researchRoutes');
+    const chatRoutes = require('./routes/chatRoutes');
 
     app.use('/api/auth', authRoutes);
     app.use('/api/detect', detectRoutes);
@@ -52,6 +53,7 @@ const startServer = async () => {
     app.use('/api/chatbot', chatbotRoutes);
     app.use('/api/signatures', signatureRoutes);
     app.use('/api/research', researchRoutes);
+    app.use('/api/chat', chatRoutes);
 
     // Serve static assets in production
     if (process.env.NODE_ENV === 'production') {
